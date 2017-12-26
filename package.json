@@ -1,0 +1,18 @@
+{
+  "name": "toy",
+  "version": "1.0.0",
+  "description": "playing around with nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Keith Frost",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "sqlite3": "^3.1.13"
+  }
+}
+
