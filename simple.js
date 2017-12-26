@@ -80,10 +80,12 @@ const server = app.listen(8080, 'localhost');
 console.log('Simple server running at http://localhost:8080/');
 
 function shutdown() {
+    console.log('Simple server shutting down...');
     server.close(function () {
         dbFetch.finalize();
         dbPut.finalize();
-        db.close(); 
+        db.close();
+        console.log('Simple server shutdown complete');
     });
 }
                  
