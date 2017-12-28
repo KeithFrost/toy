@@ -8,7 +8,7 @@
       body {
       width: 640px;
       margin: 0 auto;
-      font-family: Arial, sans-serif;
+      font-family: Verdana, Arial, Helvetica, sans-serif;
       }
     </style>
   </head>
@@ -20,36 +20,39 @@
           <td><label for='svcKey1'>Service Key:</label></td>
           <td><input type='password' id='svcKey1' size='15' value=''/></td>
           <td><input type='password' id='svcKey2' size='15' value=''/></td>
+        </tr>
+        <tr>
           <td>
             <input type='checkbox' id='svcKeyCheck'
                    onClick='reveal(svcKeyCheck.checked, svcKeyText, svcKey1, svcKey2)'/>
             Show
           </td>
-          <td>
-            &nbsp; &nbsp;
-            <span id='svcKeyText' style='font-size: 12px'></span>
+          <td colspan=2>
+            <span style="font-family: 'Courier New'" id='svcKeyText'></span>
           </td>
         </tr>
         <tr>
           <td><label for='privKey1'>Private Key:</label></td>
           <td><input type='password' id='privKey1' size='15' value=''/></td>
           <td><input type='password' id='privKey2' size='15' value=''/></td>
+        </tr>
+        <tr>
           <td>
             <input type='checkbox' id='privKeyCheck'
                    onClick='reveal(privKeyCheck.checked, privKeyText, privKey1, privKey2)'/>
             Show
           </td>
-          <td>
-            &nbsp; &nbsp;
-            <span id='privKeyText' style='font-size: 12px'></span>
+          <td colspan=2>
+            <span style="font-family: 'Courier New'" id='privKeyText'></span>
           </td>
         </tr>
       </table>
-      <div>
+      <div style='text-align: center'>
         <button type='button' onClick='load()'
                 style='background-color: #4CAF50; font-size: 16px'>
           Load
         </button>
+        &nbsp; &nbsp;
         <button type='button' onClick='save()'
                 style='background-color: #F44336; font-size: 16px'>
           Save
