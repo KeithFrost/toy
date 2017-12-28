@@ -95,9 +95,11 @@ function decrypt(secret, wrapped, callback) {
 }
 
 function computeId(callback) {
+    var privKey1 = document.getElementById('privKey1').value;
+    var svcKey1 = document.getElementById('svcKey1').value;
     window.crypto.subtle.digest(
         { name: 'SHA-256' },
-        encoder.encode(salt + privKey1.value + svcKey1.value))
+        encoder.encode(salt + privKey1 + svcKey1))
         .then(function(hash) {
             var id = base64Encode(new Uint8Array(hash))
                 .replace(/[^A-Za-z0-9]+/g, '').slice(0,16)
@@ -107,17 +109,23 @@ function computeId(callback) {
              
 
 function load() {
-    if (!svcKey1.value || !svcKey2.value ||
-        !privKey1.value || !privKey2.value) return;
+    var svcKey1 = document.getElementById('svcKey1').value;
+    var svcKey2 = document.getElementById('svcKey2').value;
+    var privKey1 = document.getElementById('privKey1').value;
+    var privKey2 = document.getElementById('privKey2').value;
+    var message = document.getElementById('message');
+    var statusBar = document.getElementById('statusBar');
+    if (!svcKey1 || !svcKey2 || !privKey1 || !privKey2) return;
     computeId(function(id) {
         var getReq = new XMLHttpRequest();
         getReq.onload = function(event) {
-            var msg = getReq.response;
-            if (msg.length > 28) {
+            var emsg = decoder.decode(getReq.response);
+            if (emsg.length > 28) {
                 decrypt(
-                    svcKey1.value + privKey1.value + privKey2.value, msg,
+                    svcKey1 + privKey1 + privKey2, emsg,
                     function(decrypted) {
                         message.value = decrypted;
+                        statusBar.textContent = 'Loaded ' + new Date();
                     });
             }
         }
@@ -126,7 +134,7 @@ function load() {
         getReq.open('GET', url, true);
         getReq.responseType = 'arraybuffer';
         hmacSign(
-            svcKey1.value + svcKey2.value, 'GET:' + id + ':' + ts,
+            svcKey1 + svcKey2, 'GET:' + id + ':' + ts,
             function(signature) {
                 getReq.setRequestHeader('X-Signature', signature);
                 getReq.send();
@@ -135,21 +143,29 @@ function load() {
 }
 
 function save() {
-    if (!svcKey1.value || !svcKey2.value ||
-        !privKey1.value || !privKey2.value || !message.value) return;
+    var svcKey1 = document.getElementById('svcKey1').value;
+    var svcKey2 = document.getElementById('svcKey2').value;
+    var privKey1 = document.getElementById('privKey1').value;
+    var privKey2 = document.getElementById('privKey2').value;
+    var message = document.getElementById('message').value;
+    var statusBar = document.getElementById('statusBar');
+    if (!svcKey1 || !svcKey2 || !privKey1 || !privKey2) return;
     computeId(function(id) {
         var putReq = new XMLHttpRequest();
         var ts = Date.now();
         var url = '/api/d/' + id + '?t=' + ts;
         putReq.open('PUT', url, true);
+        putReq.onload = function(event) {
+            statusBar.textContent = 'Saved ' + new Date();
+        }
         putReq.setRequestHeader('Content-Type', 'text/plain');
         hmacSign(
-            svcKey1.value + svcKey2.value, 'PUT:' + id + ':' + ts,
+            svcKey1 + svcKey2, 'PUT:' + id + ':' + ts,
             function(signature) {
                 putReq.setRequestHeader('X-Signature', signature);
                 encrypt(
-                    svcKey1.value + privKey1.value + privKey2.value,
-                    message.value,
+                    svcKey1 + privKey1 + privKey2,
+                    message,
                     function(encrypted) {
                         putReq.send(encrypted)
                     });
