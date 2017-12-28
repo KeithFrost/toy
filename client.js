@@ -147,7 +147,7 @@ function save() {
     var svcKey2 = document.getElementById('svcKey2').value;
     var privKey1 = document.getElementById('privKey1').value;
     var privKey2 = document.getElementById('privKey2').value;
-    var message = document.getElementById('message').value;
+    var message = document.getElementById('message');
     var statusBar = document.getElementById('statusBar');
     if (!svcKey1 || !svcKey2 || !privKey1 || !privKey2) return;
     computeId(function(id) {
@@ -165,7 +165,7 @@ function save() {
                 putReq.setRequestHeader('X-Signature', signature);
                 encrypt(
                     svcKey1 + privKey1 + privKey2,
-                    message,
+                    message.value,
                     function(encrypted) {
                         putReq.send(encrypted)
                     });
