@@ -2,13 +2,11 @@
 
 const express = require('express');
 const crypto = require('crypto');
-const cors = require('cors');
 const fs = require('fs');
 const sqlite3 = require('sqlite3');
 const bodyParser = require('body-parser');
 
 const app = express();
-app.use(cors());
 app.use(bodyParser.text({ type: 'text/plain' }));
 
 const serverSecret = fs.readFileSync('.secret').toString().trim();
@@ -61,7 +59,7 @@ app.put('/api/d/:id', function(req, res) {
 function checkHmac(req, res) {
     var ts = parseInt(req.query.t);
     var signature = req.headers['x-signature'];
-    if (!(Math.abs(ts - Date.now()) < 30000) || !signature) {
+    if (!(Math.abs(ts + 20000 - Date.now()) < 30000) || !signature) {
         res.statusCode = 401;
         res.type('text/plain')
         res.send('Current Signature Required\n');
