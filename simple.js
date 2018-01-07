@@ -32,7 +32,7 @@ app.get('/api/rand', function(req, res) {
 });
 
 app.get('/api/d/:id', function(req, res) {
-    checkHmac(req, res);
+    if (!checkHmac(req, res)) return;
     res.type('text/plain');
     var id = req.param('id');
     dbFetch.all([id], function(err, rows) {
@@ -45,7 +45,7 @@ app.get('/api/d/:id', function(req, res) {
 });
 
 app.put('/api/d/:id', function(req, res) {
-    checkHmac(req, res);
+    if (!checkHmac(req, res)) return;
     res.type('text/plain');
     var id = req.param('id');
     dbPut.run([id, req.body], function(err) {
@@ -59,10 +59,11 @@ app.put('/api/d/:id', function(req, res) {
 function checkHmac(req, res) {
     var ts = parseInt(req.query.t);
     var signature = req.headers['x-signature'];
-    if (!(Math.abs(ts + 20000 - Date.now()) < 30000) || !signature) {
+    if (!(Math.abs(ts + 20000 - Date.now()) < 40000) || !signature) {
         res.statusCode = 401;
         res.type('text/plain')
         res.send('Current Signature Required\n');
+        return false;
     }
     var id = req.param('id');
     var sigCheck = crypto.createHmac("sha256", serverSecret)
@@ -71,6 +72,9 @@ function checkHmac(req, res) {
         res.statusCode = 403;
         res.type('text/plain');
         res.send('Forbidden\n');
+        return false;
+    } else {
+        return true;
     }
 }
 
