@@ -18,7 +18,8 @@
       <table>
         <tr>
           <td><label for='svcKey1'>Service Key:</label></td>
-          <td><input type='password' id='svcKey1' size='15' value=''/></td>
+          <td><input type='password' id='svcKey1' size='15' value=''
+                     oninput='clearStatus()'/></td>
           <td><input type='password' id='svcKey2' size='15' value=''/></td>
         </tr>
         <tr>
@@ -33,8 +34,10 @@
         </tr>
         <tr>
           <td><label for='privKey1'>Private Key:</label></td>
-          <td><input type='password' id='privKey1' size='15' value=''/></td>
-          <td><input type='password' id='privKey2' size='15' value=''/></td>
+          <td><input type='password' id='privKey1' size='15' value=''
+                     oninput='clearStatus()'/></td>
+          <td><input type='password' id='privKey2' size='15' value=''
+                     oninput='clearStatus()'/></td>
         </tr>
         <tr>
           <td>
@@ -58,7 +61,8 @@
           Save
         </button>
       </div>
-      <textarea id='message' rows='40' cols='80'></textarea>
+      <textarea id='message' rows='40' cols='80'
+                oninput="clearStatus()"></textarea>
       <div id='statusBar'></div>
     </form>
   </body>

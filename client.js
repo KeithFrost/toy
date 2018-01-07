@@ -114,7 +114,6 @@ function load() {
     var privKey1 = document.getElementById('privKey1').value;
     var privKey2 = document.getElementById('privKey2').value;
     var message = document.getElementById('message');
-    var statusBar = document.getElementById('statusBar');
     if (!svcKey1 || !svcKey2 || !privKey1 || !privKey2) return;
     computeId(function(id) {
         var getReq = new XMLHttpRequest();
@@ -125,7 +124,7 @@ function load() {
                     svcKey1 + privKey1 + privKey2, emsg,
                     function(decrypted) {
                         message.value = decrypted;
-                        statusBar.textContent = 'Loaded ' + new Date();
+                        setStatus('Loaded ' + new Date());
                     });
             }
         }
@@ -148,7 +147,6 @@ function save() {
     var privKey1 = document.getElementById('privKey1').value;
     var privKey2 = document.getElementById('privKey2').value;
     var message = document.getElementById('message');
-    var statusBar = document.getElementById('statusBar');
     if (!svcKey1 || !svcKey2 || !privKey1 || !privKey2) return;
     computeId(function(id) {
         var putReq = new XMLHttpRequest();
@@ -156,7 +154,7 @@ function save() {
         var url = '/api/d/' + id + '?t=' + ts;
         putReq.open('PUT', url, true);
         putReq.onload = function(event) {
-            statusBar.textContent = 'Saved ' + new Date();
+            setStatus('Saved ' + new Date());
         }
         putReq.setRequestHeader('Content-Type', 'text/plain');
         hmacSign(
@@ -171,4 +169,17 @@ function save() {
                     });
             });
     });
+}
+
+var statusClear = false;
+
+function clearStatus() {
+    if (statusClear) return;
+    document.getElementById('statusBar').textContent = '';
+    statusClear = true;
+}
+
+function setStatus(status) {
+    document.getElementById('statusBar').textContent = status;
+    statusClear = false;
 }
