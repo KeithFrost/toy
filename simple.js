@@ -16,7 +16,7 @@ var dbPut = db.prepare('INSERT OR REPLACE INTO simple VALUES (?, ?)');
 
 app.get('/api/health', function(req, res) {
     res.type('text/plain');
-    res.send(req.url + ' Ok\n');
+    res.send(req.url + ' ' + Date.now() + ' ok\n');
 });
 
 app.get('/api/rand', function(req, res) {
