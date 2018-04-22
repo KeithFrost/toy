@@ -34,7 +34,7 @@ app.get('/api/rand', function(req, res) {
 app.get('/api/d/:id', function(req, res) {
     if (!checkHmac(req, res)) return;
     res.type('text/plain');
-    var id = req.param('id');
+    var id = req.params.id;
     dbFetch.all([id], function(err, rows) {
         if (rows.length > 0) {
             res.send(rows[0].value)
@@ -46,14 +46,17 @@ app.get('/api/d/:id', function(req, res) {
 
 app.put('/api/d/:id', function(req, res) {
     if (!checkHmac(req, res)) return;
+    var id = req.params.id;
     res.type('text/plain');
-    var id = req.param('id');
     dbPut.run([id, req.body], function(err) {
-        res.statusCode = 500;
-        res.send('Database Error');
+	if (err) {
+            res.statusCode = 500;
+            res.send('Database Error');
+	} else {
+	    res.statusCode = 204;
+	    res.send();
+	}
     });
-    res.statusCode = 204;
-    res.send();
 });
 
 function checkHmac(req, res) {
@@ -65,7 +68,7 @@ function checkHmac(req, res) {
         res.send('Current Signature Required\n');
         return false;
     }
-    var id = req.param('id');
+    var id = req.params.id;
     var sigCheck = crypto.createHmac("sha256", serverSecret)
         .update(req.method + ':' + id + ':' + ts).digest('base64');
     if (sigCheck != signature) {
