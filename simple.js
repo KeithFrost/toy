@@ -14,6 +14,8 @@ const db = new sqlite3.Database('simple.db', sqlite3.OPEN_READWRITE);
 var dbFetch = db.prepare('SELECT value FROM simple WHERE id = ?');
 var dbPut = db.prepare('INSERT OR REPLACE INTO simple VALUES (?, ?)');
 
+app.use(express.static('public'));
+
 app.get('/api/health', function(req, res) {
     res.type('text/plain');
     res.send(req.url + ' ' + Date.now() + ' ok\n');
