@@ -45,7 +45,9 @@ function newId() {
     var id = -1;
     var tries = 0;
     while (id == -1 && tries < 25) {
-        id_offset = (id_offset + (1 << tries)) & idmap_mask;
+        tries++;
+        id_offset =
+            (id_offset + 1 + Math.random() * (1 << tries)) & idmap_mask;
         var index = (id_offset + timestamp) & idmap_mask;
         var x = idbuffer[index];
         if (x != 255) {
@@ -58,8 +60,6 @@ function newId() {
                     break;
                 }
             }
-        } else {
-            tries++;
         }
     }
     return id;
