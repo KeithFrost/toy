@@ -49,12 +49,13 @@ function newId() {
         var index = (id_offset + timestamp) & idmap_mask;
         var x = idbuffer[index];
         if (x < 255) {
-            var y = x | (x + 1);
-            var d = x ^ y;
-            for (var i = 0; i < 8; i++) {
-                if ((d >> i) == 1) {
-                    idbuffer[index] = y;
-                    id = (index << 3) | i;
+            var b0 = (id_offset ^ (id_offset >> 3)) & 7;
+            for (var b = 0; b < 8; b++) {
+                var bn = (b + b0) & 7;
+                var bit = 1 << bn;
+                if (0 == (bit & x)) {
+                    idbuffer[index] |= bit;
+                    id = (index << 3) | bn;
                     break;
                 }
             }

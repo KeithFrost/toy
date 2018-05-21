@@ -1,4 +1,5 @@
 *~
+*.log
 .secret
 simple.db
 ids.map
