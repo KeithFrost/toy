@@ -25,9 +25,8 @@ const base32h = {
 
 function encode_id(id) {
     var s = '';
-    for (var i = 0; i < 6; i++) {
-        s += base32s[id & 31];
-        id = (id >> 5);
+    for (var b = 25; b >= 0; b -= 5) {
+        s += base32s[(id >> b) & 31];
     }
     return s;
 }
@@ -35,9 +34,24 @@ function encode_id(id) {
 function decode_id(id_s) {
     var id = 0;
     for (var i = 0; i < 6; i++) {
-        id |= base32h[id_s[i]] << (i * 5);
+        id |= base32h[id_s[i]] << (25 - i * 5);
     }
     return id;
+}
+
+const bit17 = 1 << 17;
+const mask17 = bit17 - 1;
+const bit13 = 1 << 13;
+const mask13 = bit13 - 1;
+const mask30 = (1 << 30) - 1;
+var tidCounter = (Math.random() * bit17) & mask17;
+function newTid() {
+    const timestamp = Date.now();
+    const msb30 = (timestamp / bit13) & mask30;
+    const time13 = timestamp & mask13;
+    tidCounter = (tidCounter + 1) & mask17;
+    const lsb30 = (time13 << 17) | tidCounter;
+    return encode_id(msb30) + '-' + encode_id(lsb30);
 }
 
 function newId() {
@@ -131,6 +145,13 @@ app.post('/api/id/new', function(req, res) {
         res.statusCode = 200;
         res.send(encode_id(id) + '\n');
     }
+});
+
+app.get('/api/tid/new', function(req, res) {
+    res.type('text/plain');
+    const tid = newTid();
+    res.statusCode = 200;
+    res.send(tid + '\n');;
 });
 
 app.get('/api/id/:id', function(req, res) {
