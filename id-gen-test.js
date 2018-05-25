@@ -25,7 +25,9 @@ function reqChain(agent) {
                     counter++;
                     if (0 == (counter % 10000)) {
                         var now = Date.now();
-                        console.error(10.0E6 / (now - timestamp) + " req/sec");
+                        var rps = (10.0E6 / (now - timestamp)).toFixed(0);
+                        var sec = (now * 1E-3).toFixed(0);
+                        console.error(sec + "\t" + rps);
                         timestamp = now;
                     }
                     reqChain(agent);

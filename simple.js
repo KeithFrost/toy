@@ -23,6 +23,8 @@ const base32h = {
     'w':28, 'x':29, 'y':30, 'z':31
 }
 
+const id_regex = /^[0-9abcdefghjkmnpqrstvwxyz]{6}$/;
+
 function encode_id(id) {
     var s = '';
     for (var b = 25; b >= 0; b -= 5) {
@@ -157,7 +159,7 @@ app.get('/api/tid/new', function(req, res) {
 app.get('/api/id/:id', function(req, res) {
     res.type('text/plain');
     var id = req.params.id;
-    if (isId(decode_id(id))) {
+    if (id_regex.test(id)  && isId(decode_id(id))) {
         res.statusCode = 200;
         res.send('ok\n');
     } else {
