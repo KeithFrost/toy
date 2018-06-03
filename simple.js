@@ -141,10 +141,10 @@ app.post('/api/id/new', function(req, res) {
     res.type('text/plain');
     var id = newId();
     if (id < 0) {
-        res.StatusCode = 500;
+        res.status(500);
         res.send();
     } else {
-        res.statusCode = 200;
+        res.status(200);
         res.send(encode_id(id) + '\n');
     }
 });
@@ -152,7 +152,7 @@ app.post('/api/id/new', function(req, res) {
 app.get('/api/tid/new', function(req, res) {
     res.type('text/plain');
     const tid = newTid();
-    res.statusCode = 200;
+    res.status(200);
     res.send(tid + '\n');;
 });
 
@@ -160,10 +160,10 @@ app.get('/api/id/:id', function(req, res) {
     res.type('text/plain');
     var id = req.params.id;
     if (id_regex.test(id)  && isId(decode_id(id))) {
-        res.statusCode = 200;
+        res.status(200);
         res.send('ok\n');
     } else {
-        res.statusCode = 404;
+        res.status(404);
         res.send('not found\n');
     }
 });
@@ -172,10 +172,10 @@ app.delete('/api/id/:id', function(req, res) {
     res.type('text/plain');
     var id = req.params.id;
     if (deleteId(decode_id(id))) {
-        res.statusCode = 200;
+        res.status(200);
         res.send('ok\n');
     } else {
-        res.statusCode = 404;
+        res.status(404);
         res.send('not found\n');
     }
 });
@@ -199,10 +199,10 @@ app.put('/api/d/:id', function(req, res) {
     res.type('text/plain');
     dbPut.run([id, req.body], function(err) {
 	if (err) {
-            res.statusCode = 500;
+            res.status(500);
             res.send('Database Error');
 	} else {
-	    res.statusCode = 204;
+	    res.status(204);
 	    res.send();
 	}
     });
@@ -212,7 +212,7 @@ function checkHmac(req, res) {
     var ts = parseInt(req.query.t);
     var signature = req.headers['x-signature'];
     if (!(Math.abs(ts + 20000 - Date.now()) < 40000) || !signature) {
-        res.statusCode = 401;
+        res.status(401);
         res.type('text/plain')
         res.send('Current Signature Required\n');
         return false;
@@ -221,7 +221,7 @@ function checkHmac(req, res) {
     var sigCheck = crypto.createHmac("sha256", serverSecret)
         .update(req.method + ':' + id + ':' + ts).digest('base64');
     if (sigCheck != signature) {
-        res.statusCode = 403;
+        res.status(403);
         res.type('text/plain');
         res.send('Forbidden\n');
         return false;

@@ -1,6 +1,7 @@
 const http = require('http');
 
 var counter = 0;
+var errcount = 0;
 var timestamp = Date.now();
 
 function reqChain(agent) {
@@ -28,14 +29,16 @@ function reqChain(agent) {
                         var now = Date.now();
                         var rps = (10.0E6 / (now - timestamp)).toFixed(0);
                         var sec = (now * 1E-3).toFixed(0);
-                        console.error(sec + "\t" + rps + "\t" + id);
+                        console.error(
+                            sec + "\t" + rps + "\t" + id + "\t" + errcount);
+                        errcount = 0;
                         timestamp = now;
                     }
                     reqChain(agent);
                 });
             } else {
                 res.on('end', () => {
-                    console.error(res.statusCode + "\n" + data.trim());
+                    errcount++;
                     reqChain(agent);
                 });
             }
@@ -43,6 +46,7 @@ function reqChain(agent) {
     
     req.on('error', (e) => {
         console.error('request error: ' + e.message);
+        errcount++;
         reqChain(agent);
     });
 
