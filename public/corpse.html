@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <script type='text/javascript' src='corpse.js'></script>
+    <link rel='icon' type='image/ico' href='/favicon.ico' />
+    <title>Exquisite Corpse</title>
+    <style>
+      body {
+      width: 640px;
+      margin: 0 auto;
+      font-family: Verdana, Arial, Helvetica, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 style='text-align: center'>The Exquisite Corpse</h1>
+    <form id='corpse-adj'>
+      <label for='adjective'>Adjective:</label>
+      <input type='text' name='word' id='adjective' size='15' value=''/>
+      <button type='button' onClick='postAdjective()'
+              style='background-color: #4CAF50; font-size: 16px'>
+        Submit
+      </button>
+    </form>
+    <form id='corpse-noun'>
+      <label for='noun'>Noun:</label>
+      <input type='text' name='word' id='noun' size='15' value=''/>
+      <button type='button' onClick='postNoun()'
+              style='background-color: #4CAF50; font-size: 16px'>
+        Submit
+      </button>
+    </form>
+    <form id='corpse-verb'>
+      <label for='verb'>Verb:</label>
+      <input type='text' name='word' id='verb' size='15' value=''/>
+      <button type='button' onClick='postVerb()'
+              style='background-color: #4CAF50; font-size: 16px'>
+        Submit
+      </button>
+    </form>
+    <form id='corpse-adv'>
+      <label for='adverb'>Adverb:</label>
+      <input type='text' name='word' id='adverb' size='15' value=''/>
+      <button type='button' onClick='postAdverb()'
+              style='background-color: #4CAF50; font-size: 16px'>
+        Submit
+      </button>
+    </form>
+  </body>
+</html>

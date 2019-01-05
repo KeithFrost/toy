@@ -14,6 +14,7 @@ var idbuffer = mmap.map(
     idmap_size, mmap.PROT_WRITE, mmap.MAP_SHARED, idmap_fd);
 fs.closeSync(idmap_fd);
 var id_offset = (Math.random() * idmap_size) | 0;
+var id_bit = (Math.random() * 8) | 0;
 
 const base32s = '0123456789abcdefghjkmnpqrstvwxyz';
 const base32h = {
@@ -57,27 +58,29 @@ function newTid() {
 }
 
 function newId() {
-    const timestamp = Date.now();
     var id = -1;
     var tries = 0;
-    while (id == -1 && tries < 25) {
-        id_offset++;
-        var index = (id_offset + timestamp) & idmap_mask;
+    while (id == -1 && tries < 54) {
+        id_offset = (id_offset + 7) & idmap_mask;
+        id_bit = (id_bit + 5) & 7;
+        var index = id_offset;
         var x = idbuffer[index];
         if (x < 255) {
-            var b0 = (id_offset ^ (id_offset >> 3)) & 7;
             for (var b = 0; b < 8; b++) {
-                var bn = (b + b0) & 7;
+                var bn = (id_bit + b) & 7;
                 var bit = 1 << bn;
                 if (0 == (bit & x)) {
                     idbuffer[index] |= bit;
+                    id_bit = bn;
                     id = (index << 3) | bn;
                     break;
                 }
             }
         } else {
             tries++;
-            id_offset += idmap_mask & ((1 + Math.random()) * (1 << tries));
+            range = (1 << ((tries + 1) >> 1));
+            id_offset = idmap_mask & (
+                id_offset + range * (0.5 + Math.random()));
         }
     }
     return id;
@@ -118,11 +121,89 @@ const db = new sqlite3.Database('simple.db', sqlite3.OPEN_READWRITE);
 var dbFetch = db.prepare('SELECT value FROM simple WHERE id = ?');
 var dbPut = db.prepare('INSERT OR REPLACE INTO simple VALUES (?, ?)');
 
+var corpsePut = db.prepare(
+    'INSERT OR REPLACE INTO corpse(word, pos, timestamp) VALUES (?, ?, ?)');
+var corpseFetch = db.prepare(
+    'SELECT word, pos from corpse ORDER BY timestamp DESC LIMIT 1000');
+
+const partsOfSpeech = {
+    'noun': 1,
+    'verb': 2,
+    'adjective': 3,
+    'adverb': 4,
+};
+
+const skeleton = [
+    3, 1, 4, 2, 3, 1, 0,
+    3, 1, 2, 3, 1, 4, 0,
+];
+const skeletonLen = skeleton.length;
+
 app.use(express.static('public'));
 
 app.get('/api/health', function(req, res) {
     res.type('text/plain');
     res.send(req.url + ' ' + Date.now() + ' ok\n');
+});
+
+app.post('/api/corpse/:pos', function(req, res) {
+    res.type('text/plain');
+    const pos = partsOfSpeech[req.params.pos];
+    if (!pos) {
+        res.status(404);
+        res.send('No such part of speech');
+        return;
+    }
+    var word = req.body.trim().split(/\s/)[0];
+    if (!word) {
+        res.status(418);
+        res.send("I'm a teapot");
+        return;
+    }
+    corpsePut.run([word, pos, Date.now()], function(err) {
+        if (err) {
+            res.status(500);
+            res.send('Database Error');
+        } else {
+            res.status(204);
+            res.send();
+        }
+    });
+});
+
+app.get('/api/corpse', function (req, res) {
+    corpseFetch.all([], function(err, rows) {
+        if (err) {
+            res.status(500);
+            res.type('text/plain');
+            res.send(err);
+            return;
+        }
+
+        var words = [null, [], [], [], []];
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            words[row.pos].push(row.word);
+        }
+
+        body = '';
+        for (i=0; i < rows.length; i++) {
+            var skI = i % skeletonLen;
+            var pos = skeleton[skI];
+            if (pos == 0) {
+                body += "\n";
+                continue;
+            }
+            word = words[pos].shift()
+            if (!word) {
+                break;
+            }
+            body += ' ' + word;
+        }
+        res.status(200);
+        res.type('text/plain');
+        res.send(body + "\n");
+    });
 });
 
 app.get('/api/rand', function(req, res) {
@@ -190,7 +271,7 @@ app.get('/api/d/:id', function(req, res) {
         } else {
             res.send('')
         }
-    });        
+    });
 });
 
 app.put('/api/d/:id', function(req, res) {
@@ -238,12 +319,14 @@ function shutdown() {
     server.close(function () {
         dbFetch.finalize();
         dbPut.finalize();
+        corpseFetch.finalize();
+        corpsePut.finalize();
         db.close();
         mmap.sync(idbuffer);
         idbuffer = null;
         console.log('Simple server shutdown complete');
     });
 }
-                 
+
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
